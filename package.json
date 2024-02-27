@@ -1,0 +1,29 @@
+{
+  "name": "vaxchain",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "server": "bun run server/server.ts",
+    "client": "bun run client/client.ts"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/bun": "latest",
+    "@types/crypto-js": "^4.2.2",
+    "@types/express-session": "^1.18.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@hono/swagger-ui": "^0.2.1",
+    "axios": "^1.6.7",
+    "body-parser": "^1.20.2",
+    "crypto-js": "^4.2.0",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-session": "^1.18.0",
+    "ipfs-http-client": "^60.0.1",
+    "mongoose": "^8.2.0"
+  }
+}
