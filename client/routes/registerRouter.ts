@@ -1,10 +1,9 @@
 import express from "express";
 import User from "../model/user";
-import CryptoJS from "crypto-js"; // Import CryptoJS
+import CryptoJS from "crypto-js";
 const router = express.Router();
 
 router.get("/register", (req, res) => {
-  // Render the register page
   res.render("register");
 });
 
@@ -13,7 +12,6 @@ router.post("/register", async (req, res) => {
     console.log(req.body);
     const { username, email, password } = req.body;
 
-    // Generate public and private keys using CryptoJS
     const privateKey = CryptoJS.lib.WordArray.random(32).toString(
       CryptoJS.enc.Hex
     );
@@ -21,7 +19,6 @@ router.post("/register", async (req, res) => {
       CryptoJS.enc.Hex
     );
 
-    // Create a new user object with the generated keys
     const newUser = new User({
       username,
       email,
@@ -30,7 +27,6 @@ router.post("/register", async (req, res) => {
       pubKey: publicKey,
     });
 
-    // Save the user to the database
     await newUser.save();
 
     res.send("User registered successfully!");

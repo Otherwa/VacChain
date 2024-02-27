@@ -21,18 +21,17 @@ mongoose
   .catch((err) => console.log(err));
 
 const app = express();
-app.use(bodyParser.json()); // Add body-parser middleware to parse JSON bodies
-app.use(bodyParser.urlencoded({ extended: true })); // Add support for URL-encoded bodies
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(
   session({
-    secret: "Tatakae", // Add a secret key for session encryption
+    secret: "Tatakae",
     resave: false,
     saveUninitialized: true,
   })
 );
 
-// Set the view engine to EJS
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
@@ -42,12 +41,10 @@ app.use("/user/", registerRouter);
 app.use("/user/", dashboardRouter);
 app.use("/user/", certificatesRouter);
 
-// Define a route for handling GET requests to the root path
 app.get("/", (req: Request, res: Response) => {
   res.render("index");
 });
 
-// Define a route for handling GET requests to the '/about' path
 app.get("/about", (req: Request, res: Response) => {
   res.send("This is the about page!");
 });

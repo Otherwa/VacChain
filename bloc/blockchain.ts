@@ -1,4 +1,4 @@
-import { createHash } from "crypto"; // Import for sha256 hashing
+import { createHash } from "crypto";
 
 class Block {
   index: number;
@@ -18,8 +18,8 @@ class Block {
     this.timestamp = timestamp;
     this.data = data;
     this.previousHash = previousHash;
-    this.hash = this.calculateHash(); // Calculate hash
-    this.nonce = 0; // Nonce for proof of work
+    this.hash = this.calculateHash();
+    this.nonce = 0;
   }
 
   calculateHash(): string {
@@ -52,7 +52,7 @@ class Blockchain {
 
   constructor() {
     this.chain = [this.createGenesisBlock()];
-    this.difficulty = 2; // Difficulty for proof of work
+    this.difficulty = 2;
   }
 
   createGenesisBlock(): Block {

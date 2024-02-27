@@ -9,7 +9,6 @@ Bun.serve({
   fetch(req) {
     const url = new URL(req.url);
 
-    // Log the request coming from
     console.log(`Request coming from: ${req.headers.get("Host")}`);
 
     switch (url.pathname) {
@@ -20,7 +19,6 @@ Bun.serve({
         });
 
       case "/peers":
-        // Log the peer node
         console.log(`Peer node: ${req.headers.get("User-Agent")}`);
         return new Response("Peers", {
           headers: HEADERS,
