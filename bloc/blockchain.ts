@@ -35,6 +35,7 @@ class Block {
       .digest("hex");
   }
 
+  // ! irrelevant may remove POS Strategy Price Gas Not Idealized @Otherwa
   mineBlock(difficulty: number): void {
     while (
       this.hash.substring(0, difficulty) !== Array(difficulty + 1).join("0")
