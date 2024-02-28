@@ -4,6 +4,8 @@
 A simple BlockChain Emulation for Maintaining Medical Certificates Validity and Authenticity 
 
 <img src="https://github.com/Otherwa/VacChain/assets/67428572/a47a388f-b932-423a-8287-24e4fa509d06" height="100px" width="100px">
+<img src="https://github.com/Otherwa/VacChain/assets/67428572/71979996-9e32-44db-bf4a-50ff2849daba" height="100px">
+
 
 <br>
 
