@@ -7,7 +7,8 @@ const { connect } = require('./db/db.cjs');
 const loginRouter = require('./routes/loginRouter.cjs');
 const registerRouter = require('./routes/registerRouter.cjs');
 const dashboardRouter = require('./routes/dashboardRouter.cjs');
-const certificatesRouter = require('./routes/certificatesRouter.cjs');
+const {router, blockchain} = require('./routes/certificatesRouter.cjs');
+
 
 const app = express();
 app.use(bodyParser.json());
@@ -30,7 +31,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use('/user/', loginRouter);
 app.use('/user/', registerRouter);
 app.use('/user/', dashboardRouter);
-app.use('/user/', certificatesRouter);
+app.use('/user/', router);
 
 app.get('/', (req, res) => {
     res.render('index');
@@ -42,4 +43,4 @@ app.get('/about', (req, res) => {
 
 
 
-module.exports = { app }
+module.exports = { app , blockchain }

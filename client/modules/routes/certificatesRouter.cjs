@@ -1,3 +1,5 @@
+const { blockchain } = require('../../bloc/blockchain.cjs');
+
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
@@ -63,4 +65,4 @@ router.get('/view', (req, res) => {
   res.render('view');
 });
 
-module.exports = router;
+module.exports = {router, blockchain} ;

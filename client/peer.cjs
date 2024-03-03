@@ -1,11 +1,8 @@
 const fs = require("fs");
 const p2p = require("p2p");
-const BlockChain = require("./bloc/blockchain.cjs");
-const { createHash } = require("crypto");
-const { app } =  require("./modules/client.cjs");
+const { app, blockchain } =  require("./modules/client.cjs");
 
-// Blockchain initialization
-const blockchain = new BlockChain();
+
 
 // Default values if arguments are not provided
 const DEFAULT_IP = '127.0.0.1';

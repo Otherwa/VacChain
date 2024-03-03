@@ -10,6 +10,7 @@ class Block {
     this.previousHash = previousHash;
     this.hash = this.calculateHash();
     this.nonce = 0;
+    this.validator = null; // Add validator field for PoS
   }
 
   calculateHash() {
@@ -20,7 +21,8 @@ class Block {
         this.timestamp +
         dataString +
         this.previousHash +
-        this.nonce
+        this.nonce +
+        this.validator // Include validator in hash calculation for PoS
       )
       .digest("hex");
   }
@@ -41,7 +43,8 @@ class Blockchain {
     this.chain = [this.createGenesisBlock()];
     this.pendingCertificates = [];
     this.difficulty = 2;
-    this.miningReward = 10;
+    this.miningReward = 100;
+    this.validators = []; // Array to store validators for PoS
   }
 
   createGenesisBlock() {
@@ -68,10 +71,19 @@ class Blockchain {
       previousHash
     );
 
-    // Mine the block with the specified difficulty
-    block.mineBlock(this.difficulty);
+    // Select the validator based on their stake in the network
+    const validator = this.selectValidator();
 
-    // Add the mined block to the blockchain
+    // Set the validator's address for the block
+    block.validator = validator.address;
+
+    // Proof of Work - Mining
+    while (!block.hash.startsWith(Array(this.difficulty + 1).join("0"))) {
+      block.nonce++;
+      block.hash = block.calculateHash();
+    }
+
+    // Once mining is successful, add the block to the blockchain
     this.chain.push(block);
 
     // Reset the pending certificates to only include the mining reward
@@ -85,6 +97,29 @@ class Blockchain {
 
     console.log("Block successfully mined!");
   }
+
+  // Select a validator based on their stake in the network
+  selectValidator() {
+    // Implement logic to select a validator based on their stake in the network
+    // For example, you can select a validator randomly based on their stake proportionally
+    const totalStake = this.validators.reduce((total, validator) => total + validator.stake, 0);
+    let randomValue = Math.random() * totalStake;
+    for (const validator of this.validators) {
+      randomValue -= validator.stake;
+      if (randomValue <= 0) {
+        return validator;
+      }
+    }
+    // If no validator is selected (which should not happen in practice), return the first validator
+    return this.validators[0];
+  }
+
+  // Add a new validator to the network
+  addValidator(address, stake) {
+    this.validators.push({ address, stake });
+  }
+
+  // Other methods...
 
   isChainValid() {
     for (let i = 1; i < this.chain.length; i++) {
@@ -136,5 +171,8 @@ class Blockchain {
     }
   }
 }
+// Blockchain initialization
+const blockchain = new Blockchain();
 
-module.exports = Blockchain;
+module.exports = { blockchain };
+

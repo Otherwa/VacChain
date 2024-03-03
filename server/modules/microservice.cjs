@@ -1,8 +1,6 @@
 const p2p = require("p2p");
 const { blockchain } = require("../bloc/blockchain.cjs");
 
-
-
 // Default values if arguments are not provided
 const DEFAULT_IP = '127.0.0.1';
 const DEFAULT_PORT = 3000;
