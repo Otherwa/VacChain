@@ -1,13 +1,14 @@
-import express from "express";
-import User from "../model/user";
-import CryptoJS from "crypto-js";
+const express = require('express');
+const User = require('../model/user.cjs');
+const CryptoJS = require('crypto-js');
+
 const router = express.Router();
 
-router.get("/register", (req, res) => {
-  res.render("register");
+router.get('/register', (req, res) => {
+  res.render('register');
 });
 
-router.post("/register", async (req, res) => {
+router.post('/register', async (req, res) => {
   try {
     console.log(req.body);
     const { username, email, password } = req.body;
@@ -29,11 +30,11 @@ router.post("/register", async (req, res) => {
 
     await newUser.save();
 
-    res.send("User registered successfully!");
+    res.send('User registered successfully!');
   } catch (error) {
-    console.error("Error registering user:", error);
-    res.status(500).send("An error occurred while registering the user.");
+    console.error('Error registering user:', error);
+    res.status(500).send('An error occurred while registering the user.');
   }
 });
 
-export default router;
+module.exports = router;
