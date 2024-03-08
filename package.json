@@ -3,8 +3,8 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "server": "node server/server.cjs localhost 3000",
-    "peer": "node client/peer.cjs localhost 4000 500"
+    "server": "node server/server.cjs localhost",
+    "peer": "node client/peer.cjs localhost"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -20,6 +20,7 @@
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "crypto-js": "^4.2.0",
+    "deta": "^2.0.0",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.9",
     "elasticdb_warehouse": "^1.0.2",

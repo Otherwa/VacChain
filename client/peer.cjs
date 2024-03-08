@@ -1,6 +1,6 @@
 const fs = require("fs");
 const p2p = require("p2p");
-const { app, blockchain } =  require("./modules/client.cjs");
+const { app, blockchain } = require("./modules/client.cjs");
 
 
 
@@ -30,24 +30,43 @@ peer.on('status::*', async (status) => {
 
 
 // Function to request data from Blockchain via remote peer
-async function requestDataFromBlockchain() {
+peer.handle.BlockChain = async (payload, done, err) => {
   try {
-    const result = await new Promise((resolve, reject) => {
-      peer.remote({ host: 'localhost', port: 3000 }).run('handle/BlockChain', (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result);
+    blockchain.readBlockchainDataFromJson(__dirname + "/../bloc/serverDump.json");
+    blockchain.dumpBlockchainDataToJson(__dirname + "/../bloc/serverDump.json");
+    const blockchainData = blockchain.getBlockchainData();
+    const peers = await peer.wellKnownPeers.get();
+
+    // Wrap the broadcasting process in a promise
+    const broadcastPromise = new Promise(async (resolve, reject) => {
+      try {
+        // Add a 10-second delay
+        await new Promise(resolve => setTimeout(resolve, 10000));
+
+        for (const p of peers) {
+          await peer.remote(p).run('handle/BlockChain', blockchainData);
         }
-      });
+        console.log("Blockchain data broadcasted successfully to peers");
+        console.warn("Validators");
+        console.info(blockchain.validators);
+        resolve(); // Resolve the promise when broadcasting is completed
+      } catch (error) {
+        console.error("Error broadcasting blockchain data:", error);
+        reject(error); // Reject the promise if there's an error
+      }
     });
-    console.log("Result:", result);
-    blockchain.chain = result;
-    blockchain.dumpBlockchainDataToJson(__dirname + "/bloc/peerDump.json");
+
+    await broadcastPromise; // Wait for the broadcasting process to complete
+
+    if (err) {
+      return done(err);
+    }
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error broadcasting blockchain data:", error);
+    return done(error);
   }
-}
+};
+
 
 // Call the function every 10 seconds
 setInterval(requestDataFromBlockchain, 10000);

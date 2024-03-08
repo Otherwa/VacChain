@@ -167,7 +167,7 @@ class Blockchain {
       this.chain = parsedData;
       console.log(`Blockchain data read from ${filename}`);
     } catch (error) {
-      console.error(`Error reading blockchain data from ${filename}: ${error}`);
+      console.error(`Error reading blockchain data from ${filename} Now Creating 💀`);
     }
   }
 }

@@ -1,5 +1,5 @@
 const express = require("express");
-const { blockchain, peer } = require("./microservice.cjs")
+const { blockchain } = require("./microservice.cjs")
 const bodyParser = require("body-parser");
 
 
@@ -30,4 +30,4 @@ app.post('/addBlock', (req, res) => {
     res.status(200).send('Block added to the blockchain.');
 });
 
-module.exports = { app, peer };
+module.exports = { app };
