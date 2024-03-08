@@ -7,7 +7,7 @@ const DEFAULT_PORT = 3000;
 
 async function setupPeer(ip, port) {
     const peers = await fetchPeers(ip, port);
-    console.log(`Peers : ${peers.toString}`)
+    console.log(`Peers : ${peers.toString()}`)
     const peerConfig = {
         host: ip,
         port: port,
@@ -17,12 +17,9 @@ async function setupPeer(ip, port) {
 
     const peer = p2p.peer(peerConfig);
 
-    // Keep track of whether the peer has joined the network
-    let joined = false;
 
     peer.on('status::joined', () => {
         console.log("Peer joined the network.");
-        joined = true;
         startBroadcasting(peer);
     });
 
@@ -34,31 +31,21 @@ async function setupPeer(ip, port) {
         }
     });
 
-    peer.handle.BlockChain = async (payload, done, err) => {
+    peer.handle.BlockChain = async (payload, done) => {
         try {
             blockchain.readBlockchainDataFromJson(__dirname + "/../bloc/serverDump.json");
             blockchain.dumpBlockchainDataToJson(__dirname + "/../bloc/serverDump.json");
-            const blockchainData = blockchain.getBlockchainData();
-            console.log(blockchainData)
-            const peers = await peer.wellKnownPeers.get();
-
-            // Add a 10-second delay
-            await new Promise(resolve => setTimeout(resolve, 10000));
-
-            for (const p of peers) {
-                await peer.remote(p).run('handle/BlockChain', blockchainData);
-            }
-            console.log("Blockchain data broadcasted successfully to peers");
-            console.warn("Validators");
-            console.info(blockchain.validators);
-            if (err) {
-                return done(err);
+            if (done) {
+                done(null, blockchain.getBlockchainData());
             }
         } catch (error) {
             console.error("Error broadcasting blockchain data:", error);
-            return done(error);
+            if (done) {
+                done(error);
+            }
         }
     };
+
 
 
     return peer;
@@ -66,8 +53,8 @@ async function setupPeer(ip, port) {
 
 async function startMicroservice(ip, port) {
     try {
-        const peer = await setupPeer(ip, port);
         await addPeer({ host: ip, port: port }, `${ip}:${port}`);
+        await setupPeer(ip, port);
     } catch (error) {
         console.error("Error starting microservice:", error);
     }
@@ -84,13 +71,19 @@ async function stopMicroservice(ip, port) {
 
 async function startBroadcasting(peer) {
     try {
+        console.log("Broadcasting ....")
         setInterval(async () => {
             try {
                 const blockchainData = blockchain.getBlockchainData();
-                const peers = await peer.wellKnownPeers.get();
+                let peers = await peer.wellKnownPeers.get();
                 console.log(peers)
+                // remove current ip host
+                peers = peers.filter(peer => peer.host !== ip || peer.port !== port);
                 for (const p of peers) {
-                    await peer.remote(p).run('handle/BlockChain', blockchainData);
+                    peer.remote(p).run('handle/BlockChain', { blockchain: blockchainData }, (err, result) => {
+                        console.log("Remote Hit")
+                        console.log(result);
+                    });
                 }
                 console.log("Blockchain data broadcasted successfully to peers");
             } catch (error) {
