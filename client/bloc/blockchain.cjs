@@ -43,8 +43,6 @@ class Blockchain {
     this.chain = [this.createGenesisBlock()];
     this.pendingCertificates = [];
     this.difficulty = 2;
-    this.miningReward = 100;
-    this.validators = []; // Array to store validators for PoS
   }
 
   createGenesisBlock() {

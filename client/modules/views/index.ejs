@@ -9,31 +9,7 @@
 </head>
 
 <body>
-    <h1>Axios Client</h1>
-    <button onclick="sendMessage()">Send Message to Server</button>
-    <div id="response"></div> <!-- Container to display server response -->
-    <script>
-        // Function to send a message to the server using Axios
-        async function sendMessage() {
-            try {
-                const res = await axios.post('http://localhost:3000', {
-                    message: 'This is a message from the client!'
-                });
-                console.log('Server response:', res.data);
-                displayResponse(JSON.stringify(res.data)); // Call function to display response
-            } catch (error) {
-                console.error('Error sending message:', error);
-            }
-        }
-
-        // Function to display server response in the HTML body
-        function displayResponse(responseText) {
-            const responseContainer = document.getElementById('response');
-            const paragraph = document.createElement('p');
-            paragraph.textContent = `Server response: ${responseText}`;
-            responseContainer.appendChild(paragraph);
-        }
-    </script>
+    <h1>VAX</h1>
 </body>
 
 </html>

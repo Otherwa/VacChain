@@ -7,10 +7,9 @@ const { app, blockchain } = require("./modules/client.cjs");
 // Default values if arguments are not provided
 const DEFAULT_IP = '127.0.0.1';
 const DEFAULT_PORT = 4000;
-const DEFAULT_STAKE = 100;
 
 // Retrieve command-line arguments
-const [ip = DEFAULT_IP, port = DEFAULT_PORT, stake = DEFAULT_STAKE] = process.argv.slice(2);
+const [ip = DEFAULT_IP, port = DEFAULT_PORT] = process.argv.slice(2);
 
 const peerConfig = {
   host: ip,
@@ -24,52 +23,54 @@ const peer = p2p.peer(peerConfig);
 peer.on('status::*', async (status) => {
   console.log(status);
   if (status["to"] === "joined") {
-    await requestDataFromBlockchain();
+    await requestDataFromBlockchain(peer);
   }
 });
 
 
 // Function to request data from Blockchain via remote peer
-peer.handle.BlockChain = async (payload, done, err) => {
+peer.handle.BlockChain = async (payload, done) => {
   try {
-    blockchain.readBlockchainDataFromJson(__dirname + "/../bloc/serverDump.json");
-    blockchain.dumpBlockchainDataToJson(__dirname + "/../bloc/serverDump.json");
-    const blockchainData = blockchain.getBlockchainData();
-    const peers = await peer.wellKnownPeers.get();
-
-    // Wrap the broadcasting process in a promise
-    const broadcastPromise = new Promise(async (resolve, reject) => {
-      try {
-        // Add a 10-second delay
-        await new Promise(resolve => setTimeout(resolve, 10000));
-
-        for (const p of peers) {
-          await peer.remote(p).run('handle/BlockChain', blockchainData);
-        }
-        console.log("Blockchain data broadcasted successfully to peers");
-        console.warn("Validators");
-        console.info(blockchain.validators);
-        resolve(); // Resolve the promise when broadcasting is completed
-      } catch (error) {
-        console.error("Error broadcasting blockchain data:", error);
-        reject(error); // Reject the promise if there's an error
-      }
-    });
-
-    await broadcastPromise; // Wait for the broadcasting process to complete
-
-    if (err) {
-      return done(err);
+    blockchain.readBlockchainDataFromJson(__dirname + "/bloc/peerDump.json");
+    blockchain.dumpBlockchainDataToJson(__dirname + "/bloc/peerDump.json");
+    if (done) {
+      done(null, blockchain.getBlockchainData());
     }
   } catch (error) {
     console.error("Error broadcasting blockchain data:", error);
-    return done(error);
+    if (done) {
+      done(error);
+    }
   }
 };
 
 
 // Call the function every 10 seconds
-setInterval(requestDataFromBlockchain, 10000);
+async function requestDataFromBlockchain(peer) {
+  try {
+    console.log("Broadcasting ....")
+    setInterval(async () => {
+      try {
+        const blockchainData = blockchain.getBlockchainData();
+        let peers = await peer.wellKnownPeers.get();
+        console.log(peers)
+        // remove current ip host
+        peers = peers.filter(peer => peer.host !== ip || peer.port !== port);
+        for (const p of peers) {
+          peer.remote(p).run('handle/BlockChain', { blockchain: blockchainData }, (err, result) => {
+            console.log("Remote Hit")
+            console.log(result);
+          });
+        }
+        console.log("Blockchain data broadcasted successfully to peers");
+      } catch (error) {
+        console.error("Error broadcasting blockchain data:", error);
+      }
+    }, 10000); // 10 seconds
+  } catch (error) {
+    console.error("Error starting broadcasting:", error);
+  }
+}
 
 // Start the server
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 2000;
