@@ -1,9 +1,14 @@
 const express = require("express");
-const { blockchain } = require("./microservice.cjs")
+const { blockchain, startBroadcasting, startMicroservice, stopMicroservice } = require("./microservice.cjs")
 const bodyParser = require("body-parser");
 
 
 const app = express();
+
+
+const DEFAULT_IP = '127.0.0.1';
+const DEFAULT_PORT = 3000;
+const [ip = DEFAULT_IP, port = DEFAULT_PORT] = process.argv.slice(2);
 
 
 app.use(bodyParser.json());
@@ -31,5 +36,17 @@ app.get('/getBlocks', (req, res) => {
     const blocks = blockchain.getBlockchainData();
     res.status(200).json(blocks);
 })
+
+app.get('/start', async (req, res) => {
+    await startMicroservice(ip, port);
+    res.status(200).send('Peer Started !')
+})
+
+app.get('/stop', async (req, res) => {
+    await stopMicroservice(ip, port);
+    res.status(200).send('Peer Removed !')
+})
+
+
 
 module.exports = { app };

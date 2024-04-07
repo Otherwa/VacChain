@@ -1,7 +1,6 @@
 const { app } = require('./modules/servernode.cjs');
 
 let port = 8080;
-let server;
 
 function startServer() {
   server = app.listen(port, () => {

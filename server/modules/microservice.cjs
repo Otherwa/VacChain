@@ -4,57 +4,72 @@ const { blockchain } = require("../bloc/blockchain.cjs");
 
 const DEFAULT_IP = '127.0.0.1';
 const DEFAULT_PORT = 3000;
+const [ip = DEFAULT_IP, port = DEFAULT_PORT] = process.argv.slice(2);
+
+var peerObject;
+
 
 async function setupPeer(ip, port) {
-    const peers = await fetchPeers(ip, port);
-    console.log(`Peers : ${peers.toString()}`)
-    const peerConfig = {
-        host: ip,
-        port: port,
-        wellKnownPeers: peers,
-        serviceInterval: '10s'
-    };
+    try {
+        const peers = await fetchPeers(ip, port);
+        console.log(`Peers : ${peers.toString()}`)
+        const peerConfig = {
+            host: ip,
+            port: port,
+            wellKnownPeers: peers,
+            serviceInterval: '10s'
+        };
 
-    const peer = p2p.peer(peerConfig);
+        const peer = p2p.peer(peerConfig);
 
-
-    peer.on('status::joined', () => {
-        console.log("Peer joined the network.");
-        startBroadcasting(peer);
-    });
-
-    peer.on('status::*', status => {
-        if (status === 'joined') {
+        peer.on('status::joined', () => {
             console.log("Peer joined the network.");
-        } else {
-            console.log(status);
-        }
-    });
+            startBroadcasting(peer);
+        });
 
-    peer.handle.BlockChain = async (payload, done) => {
-        try {
-            blockchain.readBlockchainDataFromJson(__dirname + "/../bloc/serverDump.json");
-            blockchain.dumpBlockchainDataToJson(__dirname + "/../bloc/serverDump.json");
-            if (done) {
-                done(null, blockchain.getBlockchainData());
+        peer.on('status::*', status => {
+            if (status === 'joined') {
+                console.log("Peer joined the network.");
+            } else {
+                console.log(status);
             }
-        } catch (error) {
-            console.error("Error broadcasting blockchain data:", error);
-            if (done) {
-                done(error);
+        });
+
+        peer.handle.BlockChain = async (payload, done) => {
+            try {
+                blockchain.readBlockchainDataFromJson(__dirname + "/../bloc/serverDump.json");
+                blockchain.dumpBlockchainDataToJson(__dirname + "/../bloc/serverDump.json");
+                if (done) {
+                    done(null, blockchain.getBlockchainData());
+                }
+            } catch (error) {
+                console.error("Error broadcasting blockchain data:", error);
+                if (done) {
+                    done(error);
+                }
             }
-        }
-    };
+        };
 
+        return { peer };
+    } catch (error) {
+        console.error("Error setting up peer:", error);
+    }
+}
 
-
-    return peer;
+async function unsetupPeer(peerObject) {
+    try {
+        // Delete the reference to the peer object
+        peerObject.peer = null;
+        console.log("Peer object deleted successfully!");
+    } catch (error) {
+        console.error("Error deleting peer object:", error);
+    }
 }
 
 async function startMicroservice(ip, port) {
     try {
         await addPeer({ host: ip, port: port }, `${ip}:${port}`);
-        await setupPeer(ip, port);
+        peerObject = await setupPeer(ip, port);
     } catch (error) {
         console.error("Error starting microservice:", error);
     }
@@ -95,11 +110,4 @@ async function startBroadcasting(peer) {
     }
 }
 
-const [ip = DEFAULT_IP, port = DEFAULT_PORT] = process.argv.slice(2);
-startMicroservice(ip, port);
-
-process.on('exit', async () => {
-    await stopMicroservice(ip, port);
-});
-
-module.exports = { blockchain };
+module.exports = { blockchain, stopMicroservice, startMicroservice, startBroadcasting, unsetupPeer };
