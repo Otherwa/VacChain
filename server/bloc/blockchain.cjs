@@ -42,8 +42,7 @@ class Blockchain {
     this.chain = [this.createGenesisBlock()];
     this.pendingCertificates = [];
     this.difficulty = 2;
-    this.miningReward = 100;
-    this.validators = []; // Array to store validators for PoS
+    this.mempool = []
   }
 
   createGenesisBlock() {
@@ -117,6 +116,7 @@ class Blockchain {
 
   replaceChain(newChain) {
     console.log("Replacing current chain with received chain.");
+    this.isChainValid();
     this.chain = newChain;
   }
 

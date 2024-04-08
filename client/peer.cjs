@@ -4,17 +4,14 @@ const { app, blockchain } = require("./modules/client.cjs");
 
 
 
-// Default values if arguments are not provided
 const DEFAULT_IP = '127.0.0.1';
-const DEFAULT_PORT = 4000;
-
-// Retrieve command-line arguments
+const DEFAULT_PORT = 3000;
 const [ip = DEFAULT_IP, port = DEFAULT_PORT] = process.argv.slice(2);
 
 const peerConfig = {
   host: ip,
   port: port,
-  wellKnownPeers: [{ host: "localhost", port: 3000 }],
+  wellKnownPeers: [{ host: "localhost", port: 3001 }],
   serviceInterval: '10s'
 };
 
@@ -31,8 +28,6 @@ peer.on('status::*', async (status) => {
 // Function to request data from Blockchain via remote peer
 peer.handle.BlockChain = async (payload, done) => {
   try {
-    blockchain.readBlockchainDataFromJson(__dirname + "/bloc/peerDump.json");
-    blockchain.dumpBlockchainDataToJson(__dirname + "/bloc/peerDump.json");
     if (done) {
       done(null, blockchain.getBlockchainData());
     }
@@ -59,7 +54,10 @@ async function requestDataFromBlockchain(peer) {
         for (const p of peers) {
           peer.remote(p).run('handle/BlockChain', { blockchain: blockchainData }, (err, result) => {
             console.log("Remote Hit")
-            console.log(result);
+            console.log(result)
+            blockchain.replaceChain(result)
+            blockchain.dumpBlockchainDataToJson(__dirname + "/bloc/serverDump.json");
+
           });
         }
         console.log("Blockchain data broadcasted successfully to peers");

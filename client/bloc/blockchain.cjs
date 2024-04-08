@@ -10,7 +10,6 @@ class Block {
     this.previousHash = previousHash;
     this.hash = this.calculateHash();
     this.nonce = 0;
-    this.validator = null; // Add validator field for PoS
   }
 
   calculateHash() {
@@ -43,6 +42,7 @@ class Blockchain {
     this.chain = [this.createGenesisBlock()];
     this.pendingCertificates = [];
     this.difficulty = 2;
+    this.mempool = []
   }
 
   createGenesisBlock() {
@@ -96,29 +96,6 @@ class Blockchain {
     console.log("Block successfully mined!");
   }
 
-  // Select a validator based on their stake in the network
-  selectValidator() {
-    // Implement logic to select a validator based on their stake in the network
-    // For example, you can select a validator randomly based on their stake proportionally
-    const totalStake = this.validators.reduce((total, validator) => total + validator.stake, 0);
-    let randomValue = Math.random() * totalStake;
-    for (const validator of this.validators) {
-      randomValue -= validator.stake;
-      if (randomValue <= 0) {
-        return validator;
-      }
-    }
-    // If no validator is selected (which should not happen in practice), return the first validator
-    return this.validators[0];
-  }
-
-  // Add a new validator to the network
-  addValidator(address, stake) {
-    this.validators.push({ address, stake });
-  }
-
-  // Other methods...
-
   isChainValid() {
     for (let i = 1; i < this.chain.length; i++) {
       const currentBlock = this.chain[i];
@@ -136,15 +113,8 @@ class Blockchain {
   }
 
   replaceChain(newChain) {
-    if (newChain.length <= this.chain.length) {
-      console.log("Received chain is not longer than the current chain.");
-      return;
-    }
-    if (!this.isChainValid(newChain)) {
-      console.log("Received chain is invalid.");
-      return;
-    }
     console.log("Replacing current chain with received chain.");
+    this.isChainValid()
     this.chain = newChain;
   }
 
@@ -165,11 +135,11 @@ class Blockchain {
       this.chain = parsedData;
       console.log(`Blockchain data read from ${filename}`);
     } catch (error) {
-      console.error(`Error reading blockchain data from ${filename}: ${error}`);
+      console.error(`Error reading blockchain data from ${filename} Now Creating 💀`);
     }
   }
 }
-// Blockchain initialization
+
 const blockchain = new Blockchain();
 
 module.exports = { blockchain };
