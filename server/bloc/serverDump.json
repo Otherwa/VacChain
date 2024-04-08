@@ -1,11 +1,10 @@
 [
   {
     "index": 0,
-    "timestamp": "2024-03-03T17:18:58.373Z",
+    "timestamp": "2024-04-08T14:38:55.407Z",
     "data": "Genesis Block",
     "previousHash": "0",
-    "hash": "2d27f5c248844d62d5f09c9d55738faa441880917c8763a3eb93f54ca289b857",
-    "nonce": 0,
-    "validator": null
+    "hash": "5e89c26b7a408911089fe54522a44099f9425cfcb0d61dc3af34797daecc0d69",
+    "nonce": 0
   }
 ]

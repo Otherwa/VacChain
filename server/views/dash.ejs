@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status</title>
+</head>
+
+<body>
+    <h2>Broadcasting</h2>
+    <h1 id="statustext">
+        <%= status %>
+    </h1>
+    <input type="hidden" id="status" value="<%= status %>">
+    <button id="start">Start Setup!</button>
+    <button id="stop">Stop broadcasting!</button>
+    <h1>Peers</h1>
+    <div id="peers"></div>
+    <h1>Blockchain</h1>
+    <div id="blockchain"></div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+
+        const fetchpeers = (time) => {
+            setInterval(() => {
+                $.get("/peers", (data, status) => {
+                    // console.log(data);
+                    let html = "<ul>";
+                    data.forEach(item => {
+                        html += `<li>${JSON.stringify(item)}</li>`;
+                    });
+                    html += "</ul>";
+
+                    $("#peers").html(html);
+                }).fail((xhr, status, error) => {
+                    console.error("Error:", error);
+                });
+            }, time);
+        }
+
+        const statusCheck = () => {
+            if ($('#status').val() === 'active') {
+                getblocks();
+                fetchpeers(10000);
+            }
+        }
+
+        const getblocks = () => {
+            $.get("/getBlocks", (data, status) => {
+
+                let html = "<ul>";
+                data.forEach(item => {
+                    html += `<li>${JSON.stringify(item)}</li>`;
+                });
+                html += "</ul>";
+
+                $("#blockchain").html(html);
+            }).fail((xhr, status, error) => {
+                console.error("Error:", error);
+            });
+        };
+
+
+
+
+        const startBroadcast = () => {
+            $.get("/start", (data, status) => {
+                getblocks()
+                alert(`${data} ${status}`)
+                $('#statustext').html('active');
+            })
+        }
+
+        statusCheck();
+
+        const stopBroadcast = () => {
+            $.get("/stop", (data, status) => {
+                alert(`${data} ${status}`)
+            }).then(() => {
+                $('#statustext').html('inactive');
+            })
+        }
+
+        $('#start').on('click', () => {
+            startBroadcast()
+        })
+
+        $('#stop').on('click', () => {
+            stopBroadcast();
+        });
+    </script>
+</body>
+
+</html>

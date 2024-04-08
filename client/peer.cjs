@@ -79,3 +79,8 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT) : 2000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+
+// ! send transctions via and ednspoints connetc to networds add the transsctions to pendind tranasction
+// ! on server a guy on window endpoints sees block them togeter and block create
+// ! certifacte add to deta storage
