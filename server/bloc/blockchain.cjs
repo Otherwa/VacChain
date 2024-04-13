@@ -40,7 +40,6 @@ class Block {
 class Blockchain {
   constructor() {
     this.chain = [this.createGenesisBlock()];
-    this.pendingCertificates = [];
     this.difficulty = 2;
     this.mempool = []
 
@@ -56,11 +55,14 @@ class Blockchain {
   }
 
   addCertificate(certificateHash) {
-    this.pendingCertificates.push(certificateHash);
+    return {
+      of: certificateHash.of,
+      hash: certificateHash.certificateData
+    }
   }
 
   addCertificatetomeme(certificateHash) {
-    this.mempool.push(certificateHash);
+    this.mempool.push(this.addCertificate(certificateHash));
   }
 
   minePendingCertificates() {

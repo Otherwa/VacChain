@@ -24,19 +24,6 @@ async function stopBroadcasting() {
     console.log("Broadcasting stopped successfully!");
 }
 
-function isBlockchainDifferent(newBlockchain) {
-    const localBlockchain = blockchain.getBlockchainData();
-    if (localBlockchain.length !== newBlockchain.length) {
-        return true;
-    }
-    for (let i = 0; i < localBlockchain.length; i++) {
-        if (localBlockchain[i].hash !== newBlockchain[i].hash) {
-            return true;
-        }
-    }
-    return false;
-}
-
 async function startBroadcasting(peer) {
     try {
         console.log("Broadcasting ....")
@@ -47,28 +34,37 @@ async function startBroadcasting(peer) {
                 peers = peers.filter(peer => {
                     return peer.host !== ip || peer.port != port;
                 });
-                console.log(JSON.stringify(peers));
+                console.log(JSON.stringify(peers))
+                const results = await Promise.all(peers.map(async (p) => {
+                    return new Promise((resolve, reject) => {
+                        peer.remote(p).run('handle/BlockChain', { blockchain: blockchainData }, async (err, result) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                console.log("Remote Hit")
+                                console.log(result)
 
-                // Broadcast local blockchain data to all peers
-                for (const p of peers) {
-                    try {
-                        const result = await peer.remote(p).run('handle/BlockChain', { blockchain: blockchainData });
-                        console.log("Blockchain data received from peer:", p);
-                        console.log(result);
+                                console.log("Mempool " + blockchain.mempool)
 
-                        // Compare the received blockchain with the local one
-                        if (isBlockchainDifferent(result)) {
-                            console.log("Updating local blockchain...");
-                            blockchain.replaceChain(result);
-                            blockchain.dumpBlockchainDataToJson(__dirname + "/../bloc/serverDump.json");
-                        } else {
-                            console.log("Local blockchain is up to date.");
-                        }
-                    } catch (error) {
-                        console.error("Error receiving blockchain data from peer:", p, error);
-                    }
-                }
-                console.log("Blockchain synchronized with peers successfully.");
+                                if (blockchain.mempool.length > 1) {
+                                    blockchain.minePendingCertificates()
+                                }
+
+                                if (master === "true") {
+                                    blockchain.dumpBlockchainDataToJson(__dirname + "/../bloc/serverDump.json");
+                                    blockchain.readBlockchainDataFromJson(__dirname + "/../bloc/serverDump.json");
+
+                                } else {
+                                    blockchain.replaceChain(result)
+                                    blockchain.dumpBlockchainDataToJson(__dirname + "/../bloc/serverDump.json");
+                                }
+
+                                resolve(result);
+                            }
+                        });
+                    });
+                }));
+                console.log("Blockchain data broadcasted successfully to peers");
             } catch (error) {
                 console.error("Error broadcasting blockchain data:", error);
             }

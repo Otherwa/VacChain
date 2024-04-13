@@ -70,6 +70,7 @@ router.post('/upload', checkUserSession, upload.single('file'), async (req, res)
 
     console.log("Randomly selected peer:", randomPeer);
     const response = await axios.post(`http://${randomPeer.host}:8080/addCertificateData`, {
+      of: req.session.user.pubKey,
       certificateData: hashName
     });
 

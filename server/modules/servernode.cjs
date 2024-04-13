@@ -30,7 +30,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // ? add certifctes
 app.post('/addCertificateData', (req, res) => {
-    const certificateData = req.body.certificateData;
+    const certificateData = req.body;
     blockchain.addCertificatetomeme(certificateData);
     res.status(200).send('Certificate data added to pending transactions.');
 });
