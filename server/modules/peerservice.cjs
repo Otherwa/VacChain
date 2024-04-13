@@ -29,7 +29,7 @@ async function removePeer(key) {
 async function fetchPeers(ip, port) {
     const response = await db.fetch({});
     // Filter out the peer with the provided IP and port
-    const filteredPeers = response.items.filter(peer => peer.host !== ip || peer.port !== port);
+    const filteredPeers = response.items.filter(peer => peer.host !== ip || peer.port !== port || peer.type !== 'peer');
     return filteredPeers.map(peer => {
         const { key, ...rest } = peer;
         return rest;

@@ -4,13 +4,37 @@ const { blockchain } = require("../bloc/blockchain.cjs");
 
 const DEFAULT_IP = '127.0.0.1';
 const DEFAULT_PORT = 3000;
-const [ip = DEFAULT_IP, port = DEFAULT_PORT, master = "false"] = process.argv.slice(3);
+
+let ip = DEFAULT_IP;
+let port = DEFAULT_PORT;
+let master = "false";
+
+// Check if there are enough arguments to set IP, port, and master
+if (process.argv.length >= 5) {
+    ip = process.argv[2];
+    port = parseInt(process.argv[3]);
+    master = process.argv[4].toLowerCase() === 'true' ? "true" : "false";
+}
+
 
 var broadcastingInterval;
 
 async function stopBroadcasting() {
     clearInterval(broadcastingInterval);
     console.log("Broadcasting stopped successfully!");
+}
+
+function isBlockchainDifferent(newBlockchain) {
+    const localBlockchain = blockchain.getBlockchainData();
+    if (localBlockchain.length !== newBlockchain.length) {
+        return true;
+    }
+    for (let i = 0; i < localBlockchain.length; i++) {
+        if (localBlockchain[i].hash !== newBlockchain[i].hash) {
+            return true;
+        }
+    }
+    return false;
 }
 
 async function startBroadcasting(peer) {
@@ -20,22 +44,31 @@ async function startBroadcasting(peer) {
             try {
                 const blockchainData = blockchain.getBlockchainData();
                 let peers = await peer.wellKnownPeers.get();
-                // remove current ip host
-                peers = peers.filter(peer => peer.host !== ip || peer.port !== port);
+                peers = peers.filter(peer => {
+                    return peer.host !== ip || peer.port != port;
+                });
+                console.log(JSON.stringify(peers));
+
+                // Broadcast local blockchain data to all peers
                 for (const p of peers) {
-                    peer.remote(p).run('handle/BlockChain', { blockchain: blockchainData }, (err, result) => {
-                        console.log("Remote Hit")
-                        console.log(result)
-                        if (master === "true") {
-                            blockchain.readBlockchainDataFromJson(__dirname + "/../bloc/serverDump.json");
+                    try {
+                        const result = await peer.remote(p).run('handle/BlockChain', { blockchain: blockchainData });
+                        console.log("Blockchain data received from peer:", p);
+                        console.log(result);
+
+                        // Compare the received blockchain with the local one
+                        if (isBlockchainDifferent(result)) {
+                            console.log("Updating local blockchain...");
+                            blockchain.replaceChain(result);
                             blockchain.dumpBlockchainDataToJson(__dirname + "/../bloc/serverDump.json");
                         } else {
-                            blockchain.replaceChain(result)
-                            blockchain.dumpBlockchainDataToJson(__dirname + "/../bloc/serverDump.json");
+                            console.log("Local blockchain is up to date.");
                         }
-                    });
+                    } catch (error) {
+                        console.error("Error receiving blockchain data from peer:", p, error);
+                    }
                 }
-                console.log("Blockchain data broadcasted successfully to peers");
+                console.log("Blockchain synchronized with peers successfully.");
             } catch (error) {
                 console.error("Error broadcasting blockchain data:", error);
             }
@@ -44,6 +77,7 @@ async function startBroadcasting(peer) {
         console.error("Error starting broadcasting:", error);
     }
 }
+
 
 async function setupPeer(ip, port) {
     try {

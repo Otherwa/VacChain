@@ -1,13 +1,15 @@
+
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const { connect } = require('./db/db.cjs');
+const { fetchPeers } = require("./peerservice/peerservice.cjs")
 
 const loginRouter = require('./routes/loginRouter.cjs');
 const registerRouter = require('./routes/registerRouter.cjs');
 const dashboardRouter = require('./routes/dashboardRouter.cjs');
-const {router, blockchain} = require('./routes/certificatesRouter.cjs');
+const { router, blockchain } = require('./routes/certificatesRouter.cjs');
 
 
 const app = express();
@@ -33,8 +35,9 @@ app.use('/user/', registerRouter);
 app.use('/user/', dashboardRouter);
 app.use('/user/', router);
 
-app.get('/', (req, res) => {
-    res.render('index');
+app.get('/', async (req, res) => {
+    const peers = await fetchPeers()
+    res.render('index', { "peers": peers });
 });
 
 app.get('/about', (req, res) => {
@@ -43,4 +46,4 @@ app.get('/about', (req, res) => {
 
 
 
-module.exports = { app , blockchain }
+module.exports = { app, blockchain }

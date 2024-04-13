@@ -13,8 +13,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
   },
   certifactetransaction: {
-    type: Array,
-    unique: true,
+    type: [String],
   },
   password: {
     type: String,

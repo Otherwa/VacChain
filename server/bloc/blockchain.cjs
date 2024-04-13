@@ -43,6 +43,8 @@ class Blockchain {
     this.pendingCertificates = [];
     this.difficulty = 2;
     this.mempool = []
+
+    console.log(this.chain)
   }
 
   createGenesisBlock() {
@@ -57,7 +59,11 @@ class Blockchain {
     this.pendingCertificates.push(certificateHash);
   }
 
-  minePendingCertificates(miningRewardAddress) {
+  addCertificatetomeme(certificateHash) {
+    this.mempool.push(certificateHash);
+  }
+
+  minePendingCertificates() {
     const lastBlock = this.getLatestBlock();
     const previousHash = lastBlock.hash;
 
@@ -65,15 +71,10 @@ class Blockchain {
     const block = new Block(
       lastBlock.index + 1,
       Date.now(),
-      this.pendingCertificates,
+      this.mempool,
       previousHash
     );
 
-    // Select the validator based on their stake in the network
-    const validator = this.selectValidator();
-
-    // Set the validator's address for the block
-    block.validator = validator.address;
 
     // Proof of Work - Mining
     while (!block.hash.startsWith(Array(this.difficulty + 1).join("0"))) {
@@ -83,17 +84,9 @@ class Blockchain {
 
     // Once mining is successful, add the block to the blockchain
     this.chain.push(block);
+    console.log("Block successfully mined! Limit 3");
 
-    // Reset the pending certificates to only include the mining reward
-    this.pendingCertificates = [
-      {
-        from: null,
-        to: miningRewardAddress,
-        certificateHash: this.miningReward,
-      },
-    ];
-
-    console.log("Block successfully mined!");
+    this.mempool = []
   }
 
 
@@ -116,7 +109,6 @@ class Blockchain {
 
   replaceChain(newChain) {
     console.log("Replacing current chain with received chain.");
-    this.isChainValid();
     this.chain = newChain;
   }
 

@@ -3,8 +3,8 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "server": "node server/server.cjs localhost",
-    "peer": "node client/peer.cjs localhost"
+    "server": "node server/server.cjs ",
+    "peer": "node client/peer.cjs"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

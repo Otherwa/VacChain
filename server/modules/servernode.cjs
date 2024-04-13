@@ -10,7 +10,18 @@ app.set('view engine', 'ejs');
 
 const DEFAULT_IP = '127.0.0.1';
 const DEFAULT_PORT = 3000;
-const [ip = DEFAULT_IP, port = DEFAULT_PORT, master = "false"] = process.argv.slice(3);
+
+let ip = DEFAULT_IP;
+let port = DEFAULT_PORT;
+let master = "false";
+
+// Check if there are enough arguments to set IP, port, and master
+if (process.argv.length >= 5) {
+    ip = process.argv[2];
+    port = parseInt(process.argv[3]);
+    master = process.argv[4].toLowerCase() === 'true' ? "true" : "false";
+}
+
 
 var STATUS = "inactive"
 
@@ -19,13 +30,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // ? add certifctes
 app.post('/addCertificateData', (req, res) => {
-    const certificateData = req.body;
-    blockchain.addCertificate(certificateData);
+    const certificateData = req.body.certificateData;
+    blockchain.addCertificatetomeme(certificateData);
     res.status(200).send('Certificate data added to pending transactions.');
 });
 
 
-// ? mine a block
+// ! mine a block only for a centrain user
 app.post('/mineBlock', (req, res) => {
     const blockData = req.body;
     blockchain.addBlock(blockData);
