@@ -33,7 +33,7 @@ router.post('/login', async (req, res) => {
       priKey: user.priKey,
     };
 
-    res.send('Login successful!');
+    res.redirect('./dashboard');
   } catch (error) {
     console.error('Error during login:', error);
     res.status(500).send('Internal Server Error');

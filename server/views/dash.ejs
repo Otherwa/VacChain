@@ -4,22 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
     <title>Status</title>
 </head>
 
-<body>
-    <h2>Broadcasting</h2>
-    <h1 id="statustext">
+<body class="p-4">
+    <h2 class="text-4xl">Broadcasting</h2>
+    <h1 id="statustext"
+        class="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
         <%= status %>
     </h1>
     <input type="hidden" id="status" value="<%= status %>">
-    <button id="start">Start Setup!</button>
-    <button id="stop">Stop broadcasting!</button>
-    <h1>Peers</h1>
-    <div id="peers"></div>
-    <h1>Blockchain</h1>
-    <div id="blockchain"></div>
 
+    <button id="start"
+        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Start
+        Setup!</button>
+
+    <button id="stop"
+        class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Stop
+        broadcasting!</button>
+
+    <h1 class="text-4xl font-thin text-gray-900 dark:text-white">Peers</h1>
+    <div id="peers" class="p-4"></div>
+
+    <h1 class="text-4xl font-thin text-gray-900 dark:text-white">Blockchain</h1>
+    <div id="blockchain" class="p-4"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
         integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script type="text/javascript">
@@ -28,9 +39,9 @@
             setInterval(() => {
                 $.get("/peers", (data, status) => {
                     // console.log(data);
-                    let html = "<ul>";
+                    let html = "<ul type='circle'>";
                     data.forEach(item => {
-                        html += `<li>${JSON.stringify(item)}</li>`;
+                        html += `<li>${item.host} ${item.port} </li>`;
                     });
                     html += "</ul>";
 
@@ -42,20 +53,32 @@
         }
 
         const statusCheck = () => {
-            if ($('#status').val() === 'active') {
-                getblocks();
-                fetchpeers(10000);
-            }
+            getblocks();
+            fetchpeers(5000);
         }
 
         const getblocks = () => {
             $.get("/getBlocks", (data, status) => {
 
-                let html = "<ul>";
+                let html = ""
                 data.forEach(item => {
-                    html += `<li>${JSON.stringify(item)}</li>`;
+                    html += `<span class="block  p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Block height : <code class='text-md text-gray-900'>${item.index}</code></h5>
+                                <class="font-normal text-gray-700 dark:text-gray-400">Hash <code class='text-xs text-gray-900'>${item.hash}</code> Nonce <code class='text-xs text-gray-900'>${item.nonce}</code> <br>Time <code class='text-xs text-gray-900'>${item.timestamp}</code><br>
+                                Data: 
+                                <br>
+                                <span class='text-xs'>
+                                    ${JSON.stringify(item.data, 2)}
+                                </span>
+                                <br>
+                            `
+                    // item.data.forEach(data => {
+                    //     html += `${data}<br>`;
+                    // })
+
+                    html += `<br> </span><br>`;
                 });
-                html += "</ul>";
+                html += "";
 
                 $("#blockchain").html(html);
             }).fail((xhr, status, error) => {
@@ -70,7 +93,7 @@
             $.get("/start", (data, status) => {
                 getblocks()
                 alert(`${data} ${status}`)
-                $('#statustext').html('active');
+                $('#statustext').html('active').css('color', 'green');
             })
         }
 
@@ -80,7 +103,7 @@
             $.get("/stop", (data, status) => {
                 alert(`${data} ${status}`)
             }).then(() => {
-                $('#statustext').html('inactive');
+                $('#statustext').html('inactive').css('color', 'red');
             })
         }
 

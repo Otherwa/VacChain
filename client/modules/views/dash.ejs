@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+</head>
+
+<body class="p-4">
+    <div id="user" class="p-4">
+        <span
+            class="block max-w-lg p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+            <h5 class="mb-2 text-xl tracking-tight text-gray-900 dark:text-white">Email : <code
+                    class='text-md text-gray-900'><%=user.email%></code>
+            </h5>
+            <p class="font-normal text-xs text-gray-700 dark:text-gray-400">
+                <br>
+                Public Key <%=user.pubKey %>
+            </p>
+            <p class="font-normal text-xs text-gray-700 dark:text-gray-400">
+                <br>
+                Private Key <%=user.priKey %>
+            </p>
+        </span>
+    </div>
+
+    <div class="p-4">
+        <a class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+            href="./upload">Upload Certificate</a>
+    </div>
+
+    <div class="p-4 text-5xl">
+        <h1>User Certifactes</h1>
+        <ul type="circle" style="list-style: circle; padding:1rem">
+
+            <% for (let i=0; i < usercert.length; i++) { %>
+                <li class="text-lg">
+                    <a href="./down/<%= usercert[i] %>" target="_blank">
+                        <%= usercert[i] %>
+                    </a>
+                    <a class="link" href="./view/block">view block</a>
+                </li>
+                <% } %>
+        </ul>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+</body>
+
+</html>

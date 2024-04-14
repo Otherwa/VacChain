@@ -3,6 +3,7 @@ require('dotenv').config()
 
 const { Deta } = require('deta');
 const deta = Deta(process.env.DETA);
+const stream = require('stream');
 
 const crypto = require('crypto');
 const express = require('express');
@@ -106,8 +107,23 @@ router.post('/upload', checkUserSession, upload.single('file'), async (req, res)
   }
 });
 
-router.get('/view', (req, res) => {
-  res.render('view');
+router.get('/down/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const blob = await db.get(id);
+
+    const buffer = Buffer.from(await blob.arrayBuffer());
+
+    const readableStream = new stream.PassThrough();
+    readableStream.end(buffer);
+
+    res.attachment('download.ext');
+
+    readableStream.pipe(res);
+  } catch (error) {
+    console.error('Error downloading file:', error);
+    res.status(500).send('Error downloading file');
+  }
 });
 
 module.exports = { router, blockchain };
