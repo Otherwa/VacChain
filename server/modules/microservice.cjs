@@ -51,8 +51,9 @@ async function startBroadcasting(peer) {
                                 }
 
                                 if (master === "true") {
-                                    blockchain.dumpBlockchainDataToJson(__dirname + "/../bloc/serverDump.json");
+                                    // ? Read Then dump or dump then read
                                     blockchain.readBlockchainDataFromJson(__dirname + "/../bloc/serverDump.json");
+                                    blockchain.dumpBlockchainDataToJson(__dirname + "/../bloc/serverDump.json");
 
                                 } else {
                                     blockchain.replaceChain(result)
