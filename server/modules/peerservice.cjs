@@ -4,7 +4,7 @@ const { Deta } = require('deta');
 const deta = Deta(process.env.DETA);
 
 // Initialize Deta Base
-const db = deta.Base("PeerNetwork");
+const db = deta.Base("Peer");
 
 
 async function addPeer(obj, key) {

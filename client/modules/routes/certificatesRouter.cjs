@@ -13,7 +13,7 @@ const User = require('../model/user.cjs');
 const axios = require('axios')
 // Initialize Deta Drive
 const router = express.Router();
-const db = deta.Drive("Documents");
+const db = deta.Drive("Docs");
 
 const { blockchain } = require('../../bloc/blockchain.cjs');
 const { checkUserSession } = require('../auth/auth.cjs')
