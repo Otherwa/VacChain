@@ -18,7 +18,7 @@
   "dependencies": {
     "axios": "^1.6.7",
     "bcrypt": "^5.1.1",
-    "body-parser": "^1.20.2",
+    "body-parser": "^1.20.3",
     "crypto-js": "^4.2.0",
     "deta": "^2.0.0",
     "dotenv": "^16.4.5",
